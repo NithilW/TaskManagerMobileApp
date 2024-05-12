@@ -2,18 +2,27 @@ package com.example.taskmanagerapp.repository
 
 import android.app.Application
 import androidx.lifecycle.MutableLiveData
+import androidx.room.Query
 import com.example.taskmanagerapp.database.TaskDatabase
 import com.example.taskmanagerapp.models.Task
 import com.example.taskmanagerapp.utils.Resource
 import com.example.taskmanagerapp.utils.Resource.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class TaskRepository(application: Application) {
 
     private val taskDao = TaskDatabase.getInstance(application).taskDao
+
+    private val _taskStateFlow = MutableStateFlow<Resource<Flow<List<Task>>>>(Loading())
+    val taskStateFlow: StateFlow<Resource<Flow<List<Task>>>>
+        get() = _taskStateFlow
 
     fun getTaskList() = flow {
         emit(Loading())
@@ -81,6 +90,18 @@ class TaskRepository(application: Application) {
             }
         }catch (e:Exception){
             postValue(Error(e.message.toString()))
+        }
+    }
+
+    fun searchTaskList(query: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                _taskStateFlow.emit(Loading())
+                val result = taskDao.searchTaskList("%${query}%")
+                _taskStateFlow.emit(Success( result))
+            } catch (e: Exception) {
+                _taskStateFlow.emit(Error(e.message.toString()))
+            }
         }
     }
 }

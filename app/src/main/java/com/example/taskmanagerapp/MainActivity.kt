@@ -5,15 +5,17 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.RecyclerView
 import com.example.taskmanagerapp.adapters.TaskRecyclerViewAdapter
 import com.example.taskmanagerapp.databinding.ActivityMainBinding
 import com.example.taskmanagerapp.models.Task
 import com.example.taskmanagerapp.utils.Status
 import com.example.taskmanagerapp.utils.clearEditText
+import com.example.taskmanagerapp.utils.hideKeyBoard
 import com.example.taskmanagerapp.utils.longToastShow
 import com.example.taskmanagerapp.utils.setupDialog
 import com.example.taskmanagerapp.utils.validateEditText
@@ -22,13 +24,13 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.UUID
 
 
 class MainActivity : AppCompatActivity() {
+
 
     private val mainBinding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
@@ -204,7 +206,41 @@ class MainActivity : AppCompatActivity() {
             }
         }
         mainBinding.taskRV.adapter = taskRecyclerViewAdapter
+        taskRecyclerViewAdapter.registerAdapterDataObserver(object :
+            RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+              mainBinding.taskRV.smoothScrollToPosition(positionStart)
+            }
+        })
         callGetTaskList(taskRecyclerViewAdapter)
+
+        callSearch()
+
+    }
+    private fun callSearch(){
+        mainBinding.edSearch.addTextChangedListener(object : TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(query: Editable) {
+                if(query.toString().isNotEmpty()){
+                    taskViewModel.searchTaskList(query.toString())
+                }
+                else{
+                    taskViewModel.getTaskList()
+                }
+            }
+
+        })
+        mainBinding.edSearch.setOnEditorActionListener{v,actionId,event ->
+            if(actionId == EditorInfo.IME_ACTION_SEARCH) {
+                hideKeyBoard(v)
+                return@setOnEditorActionListener true
+            }
+            false
+        }
     }
 
     private fun callGetTaskList(taskRecyclerViewAdapter:TaskRecyclerViewAdapter){

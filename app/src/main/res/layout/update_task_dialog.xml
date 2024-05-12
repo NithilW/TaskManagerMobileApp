@@ -54,7 +54,8 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="?actionBarSize"
-                    android:background="#EAE4E8"
+                    android:textColor="@color/black"
+                    android:background="@color/white"
                     android:id="@+id/edTaskTitle"
                     android:inputType="text"/>
 
@@ -68,7 +69,8 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="#EAE4E8"
+                    android:background="@color/white"
+                    android:textColor="@color/black"
                     android:gravity="top|start"
                     android:lines="5"
                     android:maxLines="5"

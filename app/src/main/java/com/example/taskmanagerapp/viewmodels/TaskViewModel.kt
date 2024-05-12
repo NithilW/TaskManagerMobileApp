@@ -3,6 +3,7 @@ package com.example.taskmanagerapp.viewmodels
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.room.Query
 import com.example.taskmanagerapp.models.Task
 import com.example.taskmanagerapp.repository.TaskRepository
 import com.example.taskmanagerapp.utils.Resource
@@ -30,5 +31,9 @@ class TaskViewModel(application: Application):AndroidViewModel(application) {
 
     fun updateTaskParticularField(taskId: String,title:String,description:String):MutableLiveData<Resource<Int>>{
         return taskRepository.updateTaskParticularField(taskId,title,description)
+    }
+
+    fun searchTaskList(query: String){
+        return taskRepository.searchTaskList(query)
     }
 }
