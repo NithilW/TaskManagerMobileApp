@@ -23,6 +23,7 @@ import com.example.taskmanagerapp.utils.longToastShow
 import com.example.taskmanagerapp.utils.setupDialog
 import com.example.taskmanagerapp.utils.validateEditText
 import com.example.taskmanagerapp.viewmodels.TaskViewModel
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.CoroutineScope
@@ -169,9 +170,14 @@ class MainActivity : AppCompatActivity() {
                 super.onItemRangeInserted(positionStart, itemCount)
                 mainBinding.taskRV.smoothScrollToPosition(positionStart)
             }
+
+            override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
+                super.onItemRangeMoved(fromPosition, toPosition, itemCount)
+                mainBinding.taskRV.smoothScrollToPosition(0)
+            }
         })
         callGetTaskList(taskRecyclerViewAdapter)
-        taskViewModel.getTaskList()
+        callSortByLiveData()
         statusCallback()
         callSearch()
 
@@ -224,7 +230,7 @@ class MainActivity : AppCompatActivity() {
                     taskViewModel.searchTaskList(query.toString())
                 }
                 else{
-                    taskViewModel.getTaskList()
+                    callSortByLiveData()
                 }
             }
 
@@ -235,6 +241,44 @@ class MainActivity : AppCompatActivity() {
                 return@setOnEditorActionListener true
             }
             false
+        }
+        callSortByDialog()
+    }
+
+    private fun callSortByLiveData(){
+        taskViewModel.sortByLiveData.observe(this){
+            taskViewModel.getTaskList(it.second,it.first)
+        }
+    }
+
+    private fun callSortByDialog() {
+        var checkedItem = 0   // 2 is default item set
+        val items = arrayOf("Title Ascending", "Title Descending","Date Ascending","Date Descending")
+
+        mainBinding.sortImg.setOnClickListener {
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Sort By")
+                .setPositiveButton("Ok") { _, _ ->
+                    when (checkedItem) {
+                        0 -> {
+                            taskViewModel.setSortBy(Pair("title",true))
+                        }
+                        1 -> {
+                            taskViewModel.setSortBy(Pair("title",false))
+                        }
+                        2 -> {
+                            taskViewModel.setSortBy(Pair("date",true))
+                        }
+                        else -> {
+                            taskViewModel.setSortBy(Pair("date",false))
+                        }
+                    }
+                }
+                .setSingleChoiceItems(items, checkedItem) { _, selectedItemIndex ->
+                    checkedItem = selectedItemIndex
+                }
+                .setCancelable(false)
+                .show()
         }
     }
 
