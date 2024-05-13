@@ -15,7 +15,7 @@ import java.util.Locale
 class TaskRecyclerViewAdapter(
     private val deleteUpdatecallback:(type:String,position: Int,task: Task) -> Unit
 ):
-RecyclerView.Adapter<TaskRecyclerViewAdapter.ViewHolder>(){
+    RecyclerView.Adapter<TaskRecyclerViewAdapter.ViewHolder>(){
 
     private val taskList = arrayListOf<Task>()
 
@@ -66,7 +66,7 @@ RecyclerView.Adapter<TaskRecyclerViewAdapter.ViewHolder>(){
     }
 
     override fun getItemCount(): Int {
-       return  taskList.size
+        return  taskList.size
     }
 
 }

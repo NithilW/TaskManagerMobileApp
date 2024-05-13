@@ -14,6 +14,11 @@ enum class Status{
     ERROR,
     LOADING
 }
+enum class StatusResult{
+    Added,
+    Updated,
+    Deleted
+}
 
 fun Context.hideKeyBoard(view : View){
     try {
